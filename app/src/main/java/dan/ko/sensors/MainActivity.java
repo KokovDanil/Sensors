@@ -24,14 +24,14 @@ import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity {
 
     private Button pauseButton;
     private Button resumeButton;
 
-    private SensorManager sensorManager;
-    private Sensor accelerometerSensor;
-    private Sensor gyroSensor;
+    public static SensorManager sensorManager;
+    public static Sensor accelerometerSensor;
+    public static Sensor gyroSensor;
 
     private Runnable graphTimer;
 
@@ -75,46 +75,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         startService(new Intent(this, SensorService.class));
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-
-        seriesAccX = new LineGraphSeries<>();
-        seriesAccX.setTitle("Accelerometer");
-        graphAcc.addSeries(seriesAccX);
-        graphAcc.getLegendRenderer().setVisible(true);
-        graphAcc.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-        graphAcc.getViewport().setXAxisBoundsManual(true);
-        graphAcc.getViewport().setMinX(-5);
-        graphAcc.getViewport().setMaxX(5);
-        graphAcc.getViewport().setScalable(true);
-        graphAcc.getViewport().setScrollable(true);
-
-        seriesGyroX = new LineGraphSeries<>();
-        seriesGyroX.setTitle("Gyroscope");
-        graphGyro.addSeries(seriesGyroX);
-        graphGyro.getLegendRenderer().setVisible(true);
-        graphGyro.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
-        graphGyro.getViewport().setXAxisBoundsManual(true);
-        graphGyro.getViewport().setMinX(-5);
-        graphGyro.getViewport().setMaxX(5);
-        graphGyro.getViewport().setScalable(true);
-        graphGyro.getViewport().setScrollable(true);
+        createAccGraph();
+        createGyroGraph();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(graphTimer);
-        sensorManager.unregisterListener(this);
         stopService(new Intent(MainActivity.this, SensorService.class));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, accelerometerSensor, SensorManager.SENSOR_DELAY_UI);
-        sensorManager.registerListener(this, gyroSensor, SensorManager.SENSOR_DELAY_UI);
         startService(new Intent(MainActivity.this, SensorService.class));
 
         graphTimer = new Runnable() {
@@ -143,24 +117,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         handler.postDelayed(graphTimer, 1000);
     }
 
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        switch (event.sensor.getType()) {
-            case Sensor.TYPE_ACCELEROMETER:
-                secAccData.add(event.values[0]);
-                break;
-
-            case Sensor.TYPE_GYROSCOPE:
-                secGyroData.add(event.values[0]);
-                break;
-
-            default: return;
-        }
+    public void createAccGraph() {
+        seriesAccX = new LineGraphSeries<>();
+        seriesAccX.setTitle("Accelerometer");
+        graphAcc.addSeries(seriesAccX);
+        graphAcc.getLegendRenderer().setVisible(true);
+        graphAcc.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        graphAcc.getViewport().setXAxisBoundsManual(true);
+        graphAcc.getViewport().setMinX(-5);
+        graphAcc.getViewport().setMaxX(5);
+        graphAcc.getViewport().setScalable(true);
+        graphAcc.getViewport().setScrollable(true);
     }
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+    public void createGyroGraph() {
+        seriesGyroX = new LineGraphSeries<>();
+        seriesGyroX.setTitle("Gyroscope");
+        graphGyro.addSeries(seriesGyroX);
+        graphGyro.getLegendRenderer().setVisible(true);
+        graphGyro.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+        graphGyro.getViewport().setXAxisBoundsManual(true);
+        graphGyro.getViewport().setMinX(-5);
+        graphGyro.getViewport().setMaxX(5);
+        graphGyro.getViewport().setScalable(true);
+        graphGyro.getViewport().setScrollable(true);
     }
 }
