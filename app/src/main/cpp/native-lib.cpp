@@ -7,12 +7,16 @@ Java_dan_ko_sensors_GetAverageJNI_nativeGetAverage(JNIEnv *env, jclass type, jfl
                                                    jint size) {
     jfloat *array = env->GetFloatArrayElements(array_, NULL);
 
-    float sum = 0;
-    for (int i = 1; i < size - 1; i++){
-        sum += array[i];
+    if (size < 3){
+        return 0;
     }
+    else {
+        float sum = 0;
+        for (int i = 1; i < size - 1; i++) {
+            sum += array[i];
+        }
+        env->ReleaseFloatArrayElements(array_, array, 0);
 
-    env->ReleaseFloatArrayElements(array_, array, 0);
-
-    return sum / (size - 2);
+        return sum / (size - 2);
+    }
 }
